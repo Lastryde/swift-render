@@ -66,7 +66,7 @@ const sendWithdrawalRequestEmail = async ({  from, amount, method,address }) => 
     </p>
 
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -103,7 +103,7 @@ const userRegisteration = async ({  firstName,email}) => {
     </p>
 
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -146,7 +146,7 @@ const sendWithdrawalEmail = async ({  to,address, amount, method,timestamp,from 
 
     
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -185,7 +185,7 @@ const sendDepositEmail = async ({  from, amount, method,timestamp }) => {
     </p>
  <p>${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -224,7 +224,7 @@ const sendBankDepositEmail = async ({  from, amount, method,timestamp }) => {
     </p>
  <p>${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -260,7 +260,7 @@ const sendNotifyEmail = async ({  name,currency }) => {
     <p>${name} Is about to deposit $${currency}. Please prepare to update balance from your dashboard.
     </p>
      <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -298,7 +298,7 @@ const sendDepositApproval = async ({   amount, method,timestamp,to}) => {
     </p>
  <p>${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -335,7 +335,7 @@ const sendPlanEmail = async ({  from, subamount, subname,trader,timestamp }) => 
     </p>
  <p>${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -410,7 +410,7 @@ const sendWelcomeEmail = async ({ to, otp }) => {
   // });
 
   let info = await transporter.sendMail({
-    from: `"swiftedgecapita Team" <${process.env.EMAIL_USER}>`, // sender address
+    from: `"swiftEdgeCapita Team" <${process.env.EMAIL_USER}>`, // sender address
     to: to, // recipient address
     subject: "Welcome to swiftedgecapita!", // subject line
     html: `
@@ -481,7 +481,132 @@ const sendWelcomeEmail = async ({ to, otp }) => {
             </p>
             <h3>Your OTP: <strong>${otp}</strong></h3>
             <p>Best regards,</p>
-            <p>The swiftedgecapita Team</p>
+            <p>The swiftEdgeCapita Team</p>
+          </div>
+          <div class="footer">
+            <p>
+              If you did not sign up for swiftedgecapita, please ignore this email or
+              contact our support team.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+    attachments: [
+      {
+        filename: 'logo.png', // Replace with your logo filename
+        path: './logo.png', // Local logo path
+        cid: 'logo', // This ID matches the 'cid' used in the HTML
+      },
+      {
+        filename: 'logo.png', // Replace with your puncture image filename
+        path: './logo.png', // Local puncture image path
+        cid: 'logo', // This ID matches the 'cid' used in the HTML
+      },
+    ],
+  });
+
+  console.log("Message sent: %s", info.messageId);
+};
+
+
+
+
+
+const sendValidationOtp = async ({ to, otp }) => {
+  const nodemailer = require("nodemailer");
+  const speakeasy = require("speakeasy");
+
+  let transporter = nodemailer.createTransport({
+    host: "mail.privateemail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL_USER, // email user
+      pass: process.env.EMAIL_PASSWORD, // email password
+    },
+  });
+
+  // const otp = speakeasy.totp({
+  //   secret: process.env.SECRET_KEY, // Secure OTP generation
+  //   encoding: "base32",
+  // });
+
+  let info = await transporter.sendMail({
+    from: `"swiftEdgeCapita Team" <${process.env.EMAIL_USER}>`, // sender address
+    to: to, // recipient address
+    subject: "Welcome to swiftedgecapita!", // subject line
+    html: `
+      <html>
+      <head>
+        <style>
+          .email-container {
+            font-family: Arial, sans-serif;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+          }
+          .header {
+            background-color: #f3f4f6;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+          }
+          .header img {
+            max-width: 50px;
+            margin-bottom: 10px;
+          }
+          .header .puncture {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+          }
+          .content {
+            padding: 20px;
+          }
+          .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-size: 16px;
+          }
+          .footer {
+            background-color: #f3f4f6;
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #888;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="email-container">
+          <div class="header">
+            <img src="cid:logo" alt="swiftedgecapita Logo">
+            
+          </div>
+          <div class="content">
+            <h2>Greetings,</h2>
+            <p>
+              Your One-Time Password (OTP) for validating your account is:<strong>${otp}</strong>.
+Please enter this code to proceed with the verification process.
+
+This OTP is valid for the next 5 minutes. Do not share it with anyone.
+
+If you did not request this OTP, please disregard this message.
+            </p>
+           
+            <p>Best regards,</p>
+            <p>The swiftEdgeCapita Team</p>
           </div>
           <div class="footer">
             <p>
@@ -604,7 +729,7 @@ const resendWelcomeEmail = async ({ to, token }) => {
 
     <p>Your OTP is: ${speakeasy.totp({ secret: secret.base32, encoding: 'base32' })}</p>
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -655,7 +780,7 @@ const sendPasswordOtp = async ({ to,otp }) => {
 
 
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -707,7 +832,7 @@ const sendRegOtp = async ({ to,otp }) => {
 
 
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -763,7 +888,7 @@ const resetEmail = async ({ to, token }) => {
     <p>If you did not request this password reset,please contact our support immediately.</p>
 
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -823,7 +948,7 @@ const sendUserDepositEmail = async ({  from, amount, to,method,timestamp }) => {
     <p>All payments are to be sent to your personal wallet address</p>
 
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -877,7 +1002,7 @@ const sendBankUserDepositEmail = async ({  from, amount, to,method,timestamp }) 
     <p>All payments are to be sent to your personal wallet address</p>
 
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -923,7 +1048,7 @@ const sendUserPlanEmail = async ({  from, subamount, to,subname,trader,timestamp
 
     <p>You  successfully subscribed to $${subamount} worth of ${subname} plan with ${trader} at ${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -983,7 +1108,7 @@ const sendUserDetails = async ({ to,password,firstName,token }) =>{
     <p>If you did not authorize this registeration ,please contact our support immediately.</p>
 
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -1034,7 +1159,7 @@ const sendKycAlert = async ({ firstName }) =>{
     <p>Kindly check your dashboard to view details</p>
 
     <p>Best wishes,</p>
-    <p>swiftedgecapita Team</p>
+    <p>swiftEdgeCapita Team</p>
 
     </html>
     
@@ -1070,6 +1195,7 @@ module.exports = {
   sendWithdrawalRequestEmail,
   sendWelcomeEmail,
   resendWelcomeEmail,
+  sendValidationOtp,
   sendRegOtp,
   resetEmail,
   sendKycAlert,

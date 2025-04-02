@@ -1,5 +1,5 @@
 var express = require("express");
-var { hashPassword,sendPasswordOtp,sendRegOtp,userRegisteration, sendWelcomeEmail,resendWelcomeEmail,resetEmail, sendUserDetails, userRegisteration } = require("../../utils");
+var { hashPassword,sendPasswordOtp,sendRegOtp,userRegisteration, sendValidationOtp,sendWelcomeEmail,resendWelcomeEmail,resetEmail, sendUserDetails, userRegisteration } = require("../../utils");
 const UsersDatabase = require("../../models/User");
 const speakeasy = require('speakeasy');
 
@@ -123,6 +123,62 @@ router.post("/register", async (req, res) => {
   }
 });
 
+
+
+router.post("/register/validate", async (req, res) => {
+ 
+  try {
+   
+   
+   
+    
+    // Send welcome email with OTP
+    sendValidationOtp({ to: email, otp });
+   
+    // Return success response with OTP and expiration time in the response
+    return res.status(200).json({
+      code: "Ok",
+      data: createdUser,
+      otp: otp, // OTP in the response
+      otpExpiration: otpExpiration, // Include expiration time
+    });
+
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
+
+
+router.post("/register/validate/resend", async (req, res) => {
+ 
+  try {
+   
+   
+   
+    
+    // Send welcome email with OTP
+    sendValidationOtp({ to: email, otp });
+   
+    // Return success response with OTP and expiration time in the response
+    return res.status(200).json({
+      code: "Ok",
+      data: createdUser,
+      otp: otp, // OTP in the response
+      otpExpiration: otpExpiration, // Include expiration time
+    });
+
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
 
 
 // router.post("/register", async (req, res) => {
