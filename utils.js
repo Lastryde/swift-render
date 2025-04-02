@@ -467,6 +467,7 @@ const sendWelcomeEmail = async ({ to, otp }) => {
       <body>
         <div class="email-container">
           <div class="header">
+            <img src="cid:logo" alt="swiftedgecapita Logo">
             
           </div>
           <div class="content">
@@ -492,18 +493,18 @@ const sendWelcomeEmail = async ({ to, otp }) => {
       </body>
       </html>
     `,
-    // attachments: [
-    //   {
-    //     filename: 'logo.png', // Replace with your logo filename
-    //     path: './logo.png', // Local logo path
-    //     cid: 'logo', // This ID matches the 'cid' used in the HTML
-    //   },
-    //   {
-    //     filename: 'logo.png', // Replace with your puncture image filename
-    //     path: './logo.png', // Local puncture image path
-    //     cid: 'logo', // This ID matches the 'cid' used in the HTML
-    //   },
-    // ],
+    attachments: [
+      {
+        filename: 'logo.png', // Replace with your logo filename
+        path: './logo.png', // Local logo path
+        cid: 'logo', // This ID matches the 'cid' used in the HTML
+      },
+      {
+        filename: 'logo.png', // Replace with your puncture image filename
+        path: './logo.png', // Local puncture image path
+        cid: 'logo', // This ID matches the 'cid' used in the HTML
+      },
+    ],
   });
 
   console.log("Message sent: %s", info.messageId);
@@ -590,7 +591,7 @@ const sendValidationOtp = async ({ to, otp }) => {
       <body>
         <div class="email-container">
           <div class="header">
-            <img src="cid:logo" alt="swiftedgecapita Logo">
+          
             
           </div>
           <div class="content">
@@ -617,18 +618,18 @@ If you did not request this OTP, please disregard this message.
       </body>
       </html>
     `,
-    attachments: [
-      {
-        filename: 'logo.png', // Replace with your logo filename
-        path: './logo.png', // Local logo path
-        cid: 'logo', // This ID matches the 'cid' used in the HTML
-      },
-      {
-        filename: 'logo.png', // Replace with your puncture image filename
-        path: './logo.png', // Local puncture image path
-        cid: 'logo', // This ID matches the 'cid' used in the HTML
-      },
-    ],
+    // attachments: [
+    //   {
+    //     filename: 'logo.png', // Replace with your logo filename
+    //     path: './logo.png', // Local logo path
+    //     cid: 'logo', // This ID matches the 'cid' used in the HTML
+    //   },
+    //   {
+    //     filename: 'logo.png', // Replace with your puncture image filename
+    //     path: './logo.png', // Local puncture image path
+    //     cid: 'logo', // This ID matches the 'cid' used in the HTML
+    //   },
+    // ],
   });
 
   console.log("Message sent: %s", info.messageId);
