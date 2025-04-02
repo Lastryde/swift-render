@@ -148,7 +148,7 @@ router.post("/register/validate", async (req, res) => {
     // Return success response with OTP and expiration time in the response
     return res.status(200).json({
       code: "Ok",
-      data: createdUser,
+      // data: createdUser,
       otp: otp, // OTP in the response
       otpExpiration: otpExpiration, // Include expiration time
     });
@@ -185,7 +185,7 @@ router.post("/register/validate/resend", async (req, res) => {
     // Return success response with OTP and expiration time in the response
     return res.status(200).json({
       code: "Ok",
-      data: createdUser,
+      // data: createdUser,
       otp: otp, // OTP in the response
       otpExpiration: otpExpiration, // Include expiration time
     });
