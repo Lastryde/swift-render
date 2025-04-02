@@ -13,6 +13,10 @@ const UsersSchema = new mongoose.Schema({
     type: String,
     
   },
+  photo: {
+    type: String,
+    
+  },
   zip: {
     type: String,
     

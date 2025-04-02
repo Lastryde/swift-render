@@ -71,6 +71,7 @@ router.post("/register", async (req, res) => {
       balance: 0,
       copytrading: 0,
       plan: " ",
+      photo:"",
       kyc: "unverified",
       address: "",
       condition: " ",
