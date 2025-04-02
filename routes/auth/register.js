@@ -126,6 +126,16 @@ router.post("/register", async (req, res) => {
 
 
 router.post("/register/validate", async (req, res) => {
+  const {email}=req.body
+  // Generate OTP
+  const otp = speakeasy.totp({
+    secret: process.env.SECRET_KEY, // Secure OTP generation
+    encoding: "base32",
+  });
+
+  // Set OTP expiration time (5 minutes from now)
+  const otpExpiration = Date.now() + (5 * 60 * 1000); // 5 minutes in milliseconds
+
  
   try {
    
@@ -154,7 +164,16 @@ router.post("/register/validate", async (req, res) => {
 
 
 router.post("/register/validate/resend", async (req, res) => {
- 
+ const {email}=req.body
+  // Generate OTP
+  const otp = speakeasy.totp({
+    secret: process.env.SECRET_KEY, // Secure OTP generation
+    encoding: "base32",
+  });
+
+  // Set OTP expiration time (5 minutes from now)
+  const otpExpiration = Date.now() + (5 * 60 * 1000); // 5 minutes in milliseconds
+
   try {
    
    
