@@ -173,6 +173,92 @@ router.post("/:_id/deposit/stock", async (req, res) => {
 });
 
 
+router.post("/:_id/deposit/stock/auto", async (req, res) => {
+  const { _id } = req.params;
+  const { method, amount, from ,timestamp,to,stock} = req.body;
+
+  const user = await UsersDatabase.findOne({ _id });
+
+  if (!user) {
+    res.status(404).json({
+      success: false,
+      status: 404,
+      message: "User not found",
+    });
+
+    return;
+  }
+
+  try {
+
+    const newBalance = user.balance - amount;
+
+    await user.updateOne({
+      stocks: [
+        ...user.stocks,
+        {
+          _id: uuidv4(),
+          method,
+          type: "Deposit",
+          amount,
+          stock,
+          from,
+          status:"pending",
+          timestamp,
+        },
+      ],
+      balance:newBalance,
+    });
+
+    res.status(200).json({
+      success: true,
+      status: 200,
+      message: "Deposit was successful",
+    });
+    if(method=="Bank"){
+
+      sendBankDepositEmail({
+        amount: amount,
+        method: method,
+        from: from,
+        timestamp:timestamp
+      });
+  
+  
+      sendBankUserDepositEmail({
+        amount: amount,
+        method: method,
+        from: from,
+        to:to,
+        timestamp:timestamp
+      });
+
+
+    }
+
+    sendStockEmail({
+      amount: amount,
+      method: method,
+      from: from,
+      stock:stock,
+      timestamp:timestamp
+    });
+
+
+    sendUserStockEmail({
+      amount: amount,
+      method: method,
+      from: from,
+      to:to,
+      stock:stock,
+      timestamp:timestamp
+    });
+
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 
 
 
