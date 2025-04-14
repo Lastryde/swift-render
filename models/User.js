@@ -17,6 +17,11 @@ const UsersSchema = new mongoose.Schema({
     type: String,
     
   },
+  stocks: {
+    type: Array,
+    
+  },
+  
   zip: {
     type: String,
     

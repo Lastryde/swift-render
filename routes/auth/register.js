@@ -80,6 +80,7 @@ router.post("/register", async (req, res) => {
       transactions: [],
       withdrawals: [],
       planHistory: [],
+      stocks: [],
       state: "",
       city: "",
       zip: "",
