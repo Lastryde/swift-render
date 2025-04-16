@@ -542,9 +542,9 @@ const sendWelcomeEmail = async ({ to, otp }) => {
         cid: 'logo', // This ID matches the 'cid' used in the HTML
       },
       {
-        filename: 'logo.png', // Replace with your puncture image filename
-        path: './logo.png', // Local puncture image path
-        cid: 'logo', // This ID matches the 'cid' used in the HTML
+        filename: 'logo2.png', // Replace with your puncture image filename
+        path: './logo2.png', // Local puncture image path
+        cid: 'logo2', // This ID matches the 'cid' used in the HTML
       },
     ],
   });
