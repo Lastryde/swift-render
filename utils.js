@@ -519,9 +519,9 @@ const sendWelcomeEmail = async ({ to, otp }) => {
               Please confirm your email address to help us keep your account secure.
             </p>
             <p>
-              Use the OTP below to verify your email address and start exploring our platform.
+              Use the Link below to verify your email address and start exploring our platform.
             </p>
-            <h3>Your OTP: <strong>${otp}</strong></h3>
+            <h3>Click <strong><a href="www.swiftedgecapita.com/verify.html">here</a></strong></h3>
             <p>Best regards,</p>
             <p>The swiftEdgeCapita Team</p>
           </div>
@@ -987,8 +987,7 @@ const sendUserDepositEmail = async ({  from, amount, to,method,timestamp }) => {
     <p>Method: ${method}</p>
     <p>Timestamp:${timestamp}</p>
 
-    <p>All payments are to be sent to your personal wallet address</p>
-
+    
     <p>Best wishes,</p>
     <p>swiftEdgeCapita Team</p>
 
