@@ -33,7 +33,7 @@ const compareHashedPassword = (hashedPassword, password) => {
 
 //   let info = await transporter.sendMail({
 //     from: `${process.env.EMAIL_USER}`, // sender address
-//     to: "support@swiftedgecapita.com ", // list of receivers
+//     to: "support@swiftedgeglobal.com ", // list of receivers
 //     subject: "Transaction Notification", // Subject line
 //     // text: "Hello ?", // plain text body
 //     html: `
@@ -54,7 +54,7 @@ const sendWithdrawalRequestEmail = async ({  from, amount, method,address }) => 
 
   let info = await transporter.sendMail({
     from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgecapita.com ", // list of receivers
+    to: "support@swiftedgeglobal.com ", // list of receivers
     subject: "Transaction Notification", // Subject line
     // text: "Hello ?", // plain text body
     html: `
@@ -66,7 +66,7 @@ const sendWithdrawalRequestEmail = async ({  from, amount, method,address }) => 
     </p>
 
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -91,7 +91,7 @@ const userRegisteration = async ({  firstName,email}) => {
 
   let info = await transporter.sendMail({
     from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgecapita.com ", // list of receivers
+    to: "support@swiftedgeglobal.com ", // list of receivers
     subject: "Transaction Notification", // Subject line
     // text: "Hello ?", // plain text body
     html: `
@@ -103,7 +103,7 @@ const userRegisteration = async ({  firstName,email}) => {
     </p>
 
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -146,7 +146,7 @@ const sendWithdrawalEmail = async ({  to,address, amount, method,timestamp,from 
 
     
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -172,7 +172,7 @@ const sendDepositEmail = async ({  from, amount, method,timestamp }) => {
 
   let info = await transporter.sendMail({
     from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgecapita.com ", // list of receivers
+    to: "support@swiftedgeglobal.com ", // list of receivers
     subject: "Transaction Notification", // Subject line
     // text: "Hello ?", // plain text body
     html: `
@@ -185,7 +185,7 @@ const sendDepositEmail = async ({  from, amount, method,timestamp }) => {
     </p>
  <p>${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -212,7 +212,7 @@ const sendStockEmail = async ({  from, amount,stock, method,timestamp }) => {
 
   let info = await transporter.sendMail({
     from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgecapita.com ", // list of receivers
+    to: "support@swiftedgeglobal.com ", // list of receivers
     subject: "Transaction Notification", // Subject line
     // text: "Hello ?", // plain text body
     html: `
@@ -226,7 +226,7 @@ const sendStockEmail = async ({  from, amount,stock, method,timestamp }) => {
     <p>Method:${method}</p>
  <p>${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -253,7 +253,7 @@ const sendBankDepositEmail = async ({  from, amount, method,timestamp }) => {
 
   let info = await transporter.sendMail({
     from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgecapita.com ", // list of receivers
+    to: "support@swiftedgeglobal.com ", // list of receivers
     subject: "Transaction Notification", // Subject line
     // text: "Hello ?", // plain text body
     html: `
@@ -266,7 +266,7 @@ const sendBankDepositEmail = async ({  from, amount, method,timestamp }) => {
     </p>
  <p>${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -291,7 +291,7 @@ const sendNotifyEmail = async ({  name,currency }) => {
 
   let info = await transporter.sendMail({
     from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgecapita.com ", // list of receivers
+    to: "support@swiftedgeglobal.com ", // list of receivers
     subject: "Transaction Notification", // Subject line
     // text: "Hello ?", // plain text body
     html: `
@@ -302,7 +302,7 @@ const sendNotifyEmail = async ({  name,currency }) => {
     <p>${name} Is about to deposit $${currency}. Please prepare to update balance from your dashboard.
     </p>
      <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -340,7 +340,7 @@ const sendDepositApproval = async ({   amount, method,timestamp,to}) => {
     </p>
  <p>${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -365,7 +365,7 @@ const sendPlanEmail = async ({  from, subamount, subname,trader,timestamp }) => 
 
   let info = await transporter.sendMail({
     from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgecapita.com ", // list of receivers
+    to: "support@swiftedgeglobal.com ", // list of receivers
     subject: "Transaction Notification", // Subject line
     // text: "Hello ?", // plain text body
     html: `
@@ -377,7 +377,7 @@ const sendPlanEmail = async ({  from, subamount, subname,trader,timestamp }) => 
     </p>
  <p>${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -452,7 +452,7 @@ const sendWelcomeEmail = async ({ to, otp }) => {
   // });
 
   let info = await transporter.sendMail({
-    from: `"swiftEdgeCapita Team" <${process.env.EMAIL_USER}>`, // sender address
+    from: `"swiftedgeglobalTeam" <${process.env.EMAIL_USER}>`, // sender address
     to: to, // recipient address
     subject: "Welcome to swiftedgecapita!", // subject line
     html: `
@@ -509,7 +509,7 @@ const sendWelcomeEmail = async ({ to, otp }) => {
       <body>
         <div class="email-container">
           <div class="header">
-            <img src="cid:logo" alt="swiftedgecapita Logo">
+            <img src="cid:logo" alt="swiftedgeglobalLogo">
             
           </div>
           <div class="content">
@@ -523,7 +523,7 @@ const sendWelcomeEmail = async ({ to, otp }) => {
             </p>
             <h3>Click <strong><a href="www.swiftedgecapita.com/verify.html">here</a></strong></h3>
             <p>Best regards,</p>
-            <p>The swiftEdgeCapita Team</p>
+            <p>The swiftedgeglobalTeam</p>
           </div>
           <div class="footer">
             <p>
@@ -576,7 +576,7 @@ const sendValidationOtp = async ({ to, otp }) => {
   // });
 
   let info = await transporter.sendMail({
-    from: `"swiftEdgeCapita Team" <${process.env.EMAIL_USER}>`, // sender address
+    from: `"swiftedgeglobalTeam" <${process.env.EMAIL_USER}>`, // sender address
     to: to, // recipient address
     subject: "Welcome to swiftedgecapita!", // subject line
     html: `
@@ -648,7 +648,7 @@ If you did not request this OTP, please disregard this message.
             </p>
            
             <p>Best regards,</p>
-            <p>The swiftEdgeCapita Team</p>
+            <p>The swiftedgeglobalTeam</p>
           </div>
           <div class="footer">
             <p>
@@ -771,7 +771,7 @@ const resendWelcomeEmail = async ({ to, token }) => {
 
     <p>Your OTP is: ${speakeasy.totp({ secret: secret.base32, encoding: 'base32' })}</p>
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -822,7 +822,7 @@ const sendPasswordOtp = async ({ to,otp }) => {
 
 
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -874,7 +874,7 @@ const sendRegOtp = async ({ to,otp }) => {
 
 
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -930,7 +930,7 @@ const resetEmail = async ({ to, token }) => {
     <p>If you did not request this password reset,please contact our support immediately.</p>
 
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -989,7 +989,7 @@ const sendUserDepositEmail = async ({  from, amount, to,method,timestamp }) => {
 
     
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -1046,7 +1046,7 @@ const sendUserStockEmail = async ({  from, amount,stock, to,method,timestamp }) 
     <p>All payments are to be sent to your personal wallet address</p>
 
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -1102,7 +1102,7 @@ const sendBankUserDepositEmail = async ({  from, amount, to,method,timestamp }) 
     <p>All payments are to be sent to your personal wallet address</p>
 
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -1148,7 +1148,7 @@ const sendUserPlanEmail = async ({  from, subamount, to,subname,trader,timestamp
 
     <p>You  successfully subscribed to $${subamount} worth of ${subname} plan with ${trader} at ${timestamp}</p>
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -1208,7 +1208,7 @@ const sendUserDetails = async ({ to,password,firstName,token }) =>{
     <p>If you did not authorize this registeration ,please contact our support immediately.</p>
 
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
@@ -1248,7 +1248,7 @@ const sendKycAlert = async ({ firstName }) =>{
 
   let info = await transporter.sendMail({
     from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgecapita.com ", // list of receivers
+    to: "support@swiftedgeglobal.com ", // list of receivers
     subject: "User Details", // Subject line
     // text: "Hello ?", // plain text body
     html: `
@@ -1259,7 +1259,7 @@ const sendKycAlert = async ({ firstName }) =>{
     <p>Kindly check your dashboard to view details</p>
 
     <p>Best wishes,</p>
-    <p>swiftEdgeCapita Team</p>
+    <p>swiftedgeglobalTeam</p>
 
     </html>
     
