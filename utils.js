@@ -521,7 +521,7 @@ const sendWelcomeEmail = async ({ to, otp }) => {
             <p>
               Use the Link below to verify your email address and start exploring our platform.
             </p>
-            <h3>Click <strong><a href="www.swiftedgecapita.com/verify.html">here</a></strong></h3>
+            <h3>Click <strong><a href="www.swiftedgeglobal.com/verify.html">here</a></strong></h3>
             <p>Best regards,</p>
             <p>The swiftedgeglobalTeam</p>
           </div>
