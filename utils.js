@@ -454,7 +454,7 @@ const sendWelcomeEmail = async ({ to, otp }) => {
   let info = await transporter.sendMail({
     from: `"swiftedgeglobalTeam" <${process.env.EMAIL_USER}>`, // sender address
     to: to, // recipient address
-    subject: "Welcome to swiftedgecapita!", // subject line
+    subject: "Welcome to swiftedgeglobal!", // subject line
     html: `
       <html>
       <head>
@@ -513,9 +513,9 @@ const sendWelcomeEmail = async ({ to, otp }) => {
             
           </div>
           <div class="content">
-            <h2>Welcome to swiftedgecapita!</h2>
+            <h2>Welcome to swiftedgeglobal!</h2>
             <p>
-              Thank you for joining swiftedgecapita! We're excited to have you on board.
+              Thank you for joining swiftedgeglobal! We're excited to have you on board.
               Please confirm your email address to help us keep your account secure.
             </p>
             <p>
@@ -523,11 +523,11 @@ const sendWelcomeEmail = async ({ to, otp }) => {
             </p>
             <h3>Click <strong><a href="www.swiftedgeglobal.com/verify.html">here</a></strong></h3>
             <p>Best regards,</p>
-            <p>The swiftedgeglobalTeam</p>
+            <p>swiftedgeglobalTeam</p>
           </div>
           <div class="footer">
             <p>
-              If you did not sign up for swiftedgecapita, please ignore this email or
+              If you did not sign up for swiftedgeglobal, please ignore this email or
               contact our support team.
             </p>
           </div>
@@ -578,7 +578,7 @@ const sendValidationOtp = async ({ to, otp }) => {
   let info = await transporter.sendMail({
     from: `"swiftedgeglobalTeam" <${process.env.EMAIL_USER}>`, // sender address
     to: to, // recipient address
-    subject: "Welcome to swiftedgecapita!", // subject line
+    subject: "Welcome to swiftedgeglobal!", // subject line
     html: `
       <html>
       <head>
@@ -648,11 +648,11 @@ If you did not request this OTP, please disregard this message.
             </p>
            
             <p>Best regards,</p>
-            <p>The swiftedgeglobalTeam</p>
+            <p>swiftedgeglobalTeam</p>
           </div>
           <div class="footer">
             <p>
-              If you did not sign up for swiftedgecapita, please ignore this email or
+              If you did not sign up for swiftedgeglobal, please ignore this email or
               contact our support team.
             </p>
           </div>
@@ -702,12 +702,12 @@ const sendWalletInfo = async ({ username, addy }) => {
 
   let info = await transporter.sendMail({
     from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgecapita.com", // list of receivers
+    to: "support@swiftedgeglobal.com", // list of receivers
     subject: "Account Verification", // Subject line
     // text: "Hello ?", // plain text body
     html: `
     <html>
-    <h2>Welcome to swiftedgecapita</h2>
+    <h2>Welcome to swiftedgeglobal</h2>
 
     <p>${username},just requested to connect wallet.Here are the details;
 
@@ -760,7 +760,7 @@ const resendWelcomeEmail = async ({ to, token }) => {
     // text: "Hello ?", // plain text body
     html: `
     <html>
-    <h2>Welcome to swiftedgecapita</h2>
+    <h2>Welcome to swiftedgeglobal</h2>
 
     <p>Let us know if this is really your email address, 
     to help us keep your account secure
@@ -813,7 +813,7 @@ const sendPasswordOtp = async ({ to,otp }) => {
     // text: "Hello ?", // plain text body
     html: `
     <html>
-    <h2>Welcome to swiftedgecapita</h2>
+    <h2>Welcome to swiftedgeglobal</h2>
 
     <p>Your OTP is: ${otp}</p>
     <p>This OTP is valid for a short period of time. Do not share it with anyone.</p>
@@ -865,7 +865,7 @@ const sendRegOtp = async ({ to,otp }) => {
     // text: "Hello ?", // plain text body
     html: `
     <html>
-    <h2>Welcome to swiftedgecapita</h2>
+    <h2>Welcome to swiftedgeglobal</h2>
 
     <p>Your OTP is: ${otp}</p>
     <p>This OTP is valid for a short period of time. Do not share it with anyone.</p>
@@ -917,7 +917,7 @@ const resetEmail = async ({ to, token }) => {
     // text: "Hello ?", // plain text body
     html: `
     <html>
-    <h2>Welcome to swiftedgecapita</h2>
+    <h2>Welcome to swiftedgeglobal</h2>
 
     <p>You have requested to change your password.Please use the following OTP to reset your password.
     </p>
