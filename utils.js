@@ -1,1305 +1,308 @@
 const bcrypt = require("bcryptjs");
 const salt = bcrypt.genSaltSync(10);
 const axios = require("axios");
-var nodemailer = require("nodemailer");
 const speakeasy = require('speakeasy');
+const { Resend } = require("resend");
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 const secret = speakeasy.generateSecret({ length: 4 });
 
+const hashPassword = (password) => bcrypt.hashSync(password, salt);
+const compareHashedPassword = (hashedPassword, password) => bcrypt.compareSync(password, hashedPassword);
 
-const hashPassword = (password) => {
-  const hashedPassword = bcrypt.hashSync(password, salt);
-  return hashedPassword;
+const BRAND = {
+  name: "swiftedgeglobal",
+  color: "#0048ff",
+  email: "support@swiftedgeglobal.com",
+  site: "https://swiftedgeglobal.com",
 };
 
-const compareHashedPassword = (hashedPassword, password) => {
-  const isSame = bcrypt.compareSync(password, hashedPassword);
-  return isSame;
+// ============== UNIVERSAL EMAIL WRAPPER ==============
+function generateEmailHTML(title, greeting, bodyHTML) {
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+        background: #f4f6f8;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      }
+      .header {
+        background: ${BRAND.color};
+        color: white;
+        text-align: center;
+        padding: 20px;
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .content {
+        padding: 25px;
+        line-height: 1.7;
+      }
+      .details {
+        background: #f1f4f8;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      .footer {
+        background: #f9fafb;
+        text-align: center;
+        color: #777;
+        font-size: 13px;
+        padding: 15px;
+        border-top: 1px solid #eee;
+      }
+      a {
+        color: ${BRAND.color};
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">${title}</div>
+      <div class="content">
+        <p>${greeting}</p>
+        ${bodyHTML}
+      </div>
+      <div class="footer">
+        <p>Best regards,<br><strong>${BRAND.name} Team</strong></p>
+        <p>&copy; ${new Date().getFullYear()} ${BRAND.name}. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+  </html>`;
+}
+
+// ============== UNIVERSAL RESEND FUNCTION ==============
+async function sendEmail({ from, to, subject, html }) {
+  try {
+    const data = await resend.emails.send({
+      from: from || `${BRAND.name} <${BRAND.email}>`,
+      to,
+      subject,
+      html,
+    });
+    console.log("✅ Email sent:", data.id);
+  } catch (err) {
+    console.error("❌ Email send failed:", err);
+  }
+}
+
+// ============== EMAIL TEMPLATES ==============
+const sendWithdrawalRequestEmail = async ({ from, amount, method, address }) => {
+  const html = generateEmailHTML(
+    "Withdrawal Request Notification",
+    "Hello Chief,",
+    `<p><strong>${from}</strong> wants to withdraw <strong>$${amount}</strong> via <strong>${method}</strong> to wallet address:</p>
+     <div class="details">${address}</div>`
+  );
+  await sendEmail({ to: BRAND.email, subject: "Withdrawal Request", html });
 };
 
-
-
-
-// const sendDepositEmail = async ({ from, amount, method,timestamp}) => {
-//   let transporter = nodemailer.createTransport({
-//     host: "mail.privateemail.com",
-//     port: 465,
-//     secure: true,
-//     auth: {
-//       user: process.env.EMAIL_USER, // generated ethereal user
-//       pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-//     },
-//   });
-
-//   let info = await transporter.sendMail({
-//     from: `${process.env.EMAIL_USER}`, // sender address
-//     to: "support@swiftedgeglobal.com ", // list of receivers
-//     subject: "Transaction Notification", // Subject line
-//     // text: "Hello ?", // plain text body
-//     html: `
-
-
-
-const sendWithdrawalRequestEmail = async ({  from, amount, method,address }) => {
-  
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgeglobal.com ", // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello Chief</p>
-
-    <p>${from} wants to withdraw $${amount} worth of ${method} into ${address} wallet address.
-    </p>
-
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const userRegisteration = async ({ firstName, email }) => {
+  const html = generateEmailHTML(
+    "New User Registration",
+    "Hello Chief,",
+    `<p><strong>${firstName}</strong> just registered with email: <strong>${email}</strong>.</p>
+     <p>Please review on your admin dashboard.</p>`
+  );
+  await sendEmail({ to: BRAND.email, subject: "New User Registration", html });
 };
 
-const userRegisteration = async ({  firstName,email}) => {
-  
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgeglobal.com ", // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello Chief</p>
-
-    <p>${firstName} with email ${email} just signed up.Please visit your dashboard for confirmation.
-    </p>
-
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const sendWithdrawalEmail = async ({ to, address, amount, method, from }) => {
+  const html = generateEmailHTML(
+    "Withdrawal Confirmation",
+    `Hello ${from},`,
+    `<p>Your withdrawal request has been received successfully.</p>
+     <div class="details">
+       <p><strong>Amount:</strong> $${amount}</p>
+       <p><strong>Wallet Address:</strong> ${address}</p>
+       <p><strong>Payment Method:</strong> ${method}</p>
+     </div>`
+  );
+  await sendEmail({ to, subject: "Withdrawal Notification", html });
 };
 
-
-const sendWithdrawalEmail = async ({  to,address, amount, method,timestamp,from }) => {
-  
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: to, // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello ${from}</p>
-
-    <p>You just sent a withdrawal request.
-    </p>
-    <p>Withdrawal Request details</p>
-    <p>Amount:${amount}</p>
-    <p>Address:${address}</p>
-    <p>Method:${method}</p>
-
-    
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const sendDepositEmail = async ({ from, amount, method, timestamp }) => {
+  const html = generateEmailHTML(
+    "Deposit Notification",
+    "Hello Chief,",
+    `<p><strong>${from}</strong> said they just sent <strong>$${amount}</strong> via <strong>${method}</strong>.</p>
+     <p>${timestamp}</p>`
+  );
+  await sendEmail({ to: BRAND.email, subject: "Deposit Notification", html });
 };
 
-
-const sendDepositEmail = async ({  from, amount, method,timestamp }) => {
-  
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgeglobal.com ", // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello Chief</p>
-
-    <p>${from} said he/she just sent $${amount} worth of ${method}. Please confirm the transaction. 
-    Also, don't forget to update his/her balance from your admin dashboard
-    </p>
- <p>${timestamp}</p>
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const sendStockEmail = async ({ from, amount, stock, method, timestamp }) => {
+  const html = generateEmailHTML(
+    "Stock Purchase Notification",
+    "Hello Chief,",
+    `<p><strong>${from}</strong> just bought <strong>$${amount}</strong> worth of <strong>${stock}</strong>.</p>
+     <div class="details">
+       <p><strong>Method:</strong> ${method}</p>
+       <p><strong>Date:</strong> ${timestamp}</p>
+     </div>`
+  );
+  await sendEmail({ to: BRAND.email, subject: "Stock Purchase", html });
 };
 
-
-
-const sendStockEmail = async ({  from, amount,stock, method,timestamp }) => {
-  
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgeglobal.com ", // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello Chief</p>
-
-    <p>${from} said he/she just bought $${amount} worth of ${stock}. Please confirm the transaction. 
-    Also, don't forget to update his/her balance from your admin dashboard.
-    </p>
-    <p>Method:${method}</p>
- <p>${timestamp}</p>
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const sendBankDepositEmail = async ({ from, amount, timestamp }) => {
+  const html = generateEmailHTML(
+    "Bank Deposit Request",
+    "Hello Chief,",
+    `<p><strong>${from}</strong> wants to deposit <strong>$${amount}</strong> via bank transfer.</p>
+     <p>${timestamp}</p>`
+  );
+  await sendEmail({ to: BRAND.email, subject: "Bank Deposit Notification", html });
 };
 
-
-
-const sendBankDepositEmail = async ({  from, amount, method,timestamp }) => {
-  
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgeglobal.com ", // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello Chief</p>
-
-    <p>${from} said he/she wants to send $${amount}  via Bank Transfer. Please provide the neccessary account info.
-    Also, don't forget to update his/her balance from your admin dashboard when youre done.
-    </p>
- <p>${timestamp}</p>
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const sendNotifyEmail = async ({ name, currency }) => {
+  const html = generateEmailHTML(
+    "Deposit Notification",
+    "Hello Chief,",
+    `<p><strong>${name}</strong> is about to deposit <strong>$${currency}</strong>. Please get ready to update the dashboard.</p>`
+  );
+  await sendEmail({ to: BRAND.email, subject: "Deposit Incoming", html });
 };
 
-const sendNotifyEmail = async ({  name,currency }) => {
-  
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgeglobal.com ", // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello Chief</p>
-
-    <p>${name} Is about to deposit $${currency}. Please prepare to update balance from your dashboard.
-    </p>
-     <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const sendDepositApproval = async ({ amount, method, timestamp, to }) => {
+  const html = generateEmailHTML(
+    "Deposit Approved",
+    "Hello Esteemed Client,",
+    `<p>Your deposit of <strong>$${amount}</strong> via <strong>${method}</strong> has been approved.</p>
+     <p>${timestamp}</p>`
+  );
+  await sendEmail({ to, subject: "Deposit Approved", html });
 };
 
-const sendDepositApproval = async ({   amount, method,timestamp,to}) => {
-  
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: to, // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello Esteemed,</p>
-
-    <p>Your deposit of ${amount} of ${method} has been approved.</p>
-    <p>Kindly visit your dashboard for more information</p>
-    </p>
- <p>${timestamp}</p>
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const sendPlanEmail = async ({ from, subamount, subname, trader, timestamp }) => {
+  const html = generateEmailHTML(
+    "New Plan Subscription",
+    "Hello Chief,",
+    `<p><strong>${from}</strong> subscribed <strong>$${subamount}</strong> to <strong>${subname}</strong> plan with <strong>${trader}</strong> trader.</p>
+     <p>${timestamp}</p>`
+  );
+  await sendEmail({ to: BRAND.email, subject: "Plan Subscription Notification", html });
 };
-
-const sendPlanEmail = async ({  from, subamount, subname,trader,timestamp }) => {
-  
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgeglobal.com ", // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello Chief</p>
-
-    <p>${from} said he/she just subscribed $${subamount}  of ${subname} plan with${trader} Trader. 
-    </p>
- <p>${timestamp}</p>
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-};
-
-
 
 const sendForgotPasswordEmail = async (email) => {
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: `${email}`, // list of receivers
-    subject: "Password Reset", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-    <html>
-    <p>Dear esteemed user,</p>
-
-    <p>Forgot your password?</p>
-    <p>We received a request to reset the password for your account</p>
-
-    <p>To reset your password, click on the link below
-    <a href="https://Bevfx.com/reset-password">
-    reset password
-    </p>
-
-
-    <p>If you did not make this request, please ignore this email</p>
-
-    <p>Best wishes,</p>
-    <p>Bevfx Team</p>
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+  const html = generateEmailHTML(
+    "Password Reset Request",
+    "Dear user,",
+    `<p>We received a request to reset your password.</p>
+     <a href="https://Bevfx.com/reset-password">Click here to reset your password</a>
+     <p>If you didn’t make this request, please ignore this email.</p>`
+  );
+  await sendEmail({ to: email, subject: "Password Reset", html });
 };
 
-const sendWelcomeEmail = async ({ to, otp }) => {
-  const nodemailer = require("nodemailer");
-  const speakeasy = require("speakeasy");
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // email user
-      pass: process.env.EMAIL_PASSWORD, // email password
-    },
-  });
-
-  // const otp = speakeasy.totp({
-  //   secret: process.env.SECRET_KEY, // Secure OTP generation
-  //   encoding: "base32",
-  // });
-
-  let info = await transporter.sendMail({
-    from: `"swiftedgeglobalTeam" <${process.env.EMAIL_USER}>`, // sender address
-    to: to, // recipient address
-    subject: "Welcome to swiftedgeglobal!", // subject line
-    html: `
-      <html>
-      <head>
-        <style>
-          .email-container {
-            font-family: Arial, sans-serif;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-          }
-          .header {
-            background-color: #f3f4f6;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-          }
-          .header img {
-            max-width: 50px;
-            margin-bottom: 10px;
-          }
-          .header .puncture {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-          }
-          .content {
-            padding: 20px;
-          }
-          .button {
-            display: inline-block;
-            background-color: #007bff;
-            color: #fff;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 20px 0;
-            font-size: 16px;
-          }
-          .footer {
-            background-color: #f3f4f6;
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-            color: #888;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="email-container">
-          <div class="header">
-            <img src="cid:logo" alt="swiftedgeglobalLogo">
-            
-          </div>
-          <div class="content">
-            <h2>Welcome to swiftedgeglobal!</h2>
-            <p>
-              Thank you for joining swiftedgeglobal! We're excited to have you on board.
-              Please confirm your email address to help us keep your account secure.
-            </p>
-            <p>
-              Use the Link below to verify your email address and start exploring our platform.
-            </p>
-            <h3>Click <strong><a href="www.swiftedgeglobal.com/verify.html">here</a></strong></h3>
-            <p>Best regards,</p>
-            <p>swiftedgeglobalTeam</p>
-          </div>
-          <div class="footer">
-            <p>
-              If you did not sign up for swiftedgeglobal, please ignore this email or
-              contact our support team.
-            </p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    attachments: [
-      {
-        filename: 'logo.png', // Replace with your logo filename
-        path: './logo.png', // Local logo path
-        cid: 'logo', // This ID matches the 'cid' used in the HTML
-      },
-      {
-        filename: 'logo2.png', // Replace with your puncture image filename
-        path: './logo2.png', // Local puncture image path
-        cid: 'logo2', // This ID matches the 'cid' used in the HTML
-      },
-    ],
-  });
-
-  console.log("Message sent: %s", info.messageId);
+const sendWelcomeEmail = async ({ to }) => {
+  const html = generateEmailHTML(
+    "Welcome to Swiftedgeglobal",
+    "Dear user,",
+    `<p>Thank you for joining Swiftedgeglobal.</p>
+     <p>Please verify your email:</p>
+     <a href="${BRAND.site}/verify.html">Verify Email</a>`
+  );
+  await sendEmail({ to, subject: "Welcome to Swiftedgeglobal!", html });
 };
-
-
-
-
 
 const sendValidationOtp = async ({ to, otp }) => {
-  const nodemailer = require("nodemailer");
-  const speakeasy = require("speakeasy");
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // email user
-      pass: process.env.EMAIL_PASSWORD, // email password
-    },
-  });
-
-  // const otp = speakeasy.totp({
-  //   secret: process.env.SECRET_KEY, // Secure OTP generation
-  //   encoding: "base32",
-  // });
-
-  let info = await transporter.sendMail({
-    from: `"swiftedgeglobalTeam" <${process.env.EMAIL_USER}>`, // sender address
-    to: to, // recipient address
-    subject: "Welcome to swiftedgeglobal!", // subject line
-    html: `
-      <html>
-      <head>
-        <style>
-          .email-container {
-            font-family: Arial, sans-serif;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-          }
-          .header {
-            background-color: #f3f4f6;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-          }
-          .header img {
-            max-width: 50px;
-            margin-bottom: 10px;
-          }
-          .header .puncture {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-          }
-          .content {
-            padding: 20px;
-          }
-          .button {
-            display: inline-block;
-            background-color: #007bff;
-            color: #fff;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 20px 0;
-            font-size: 16px;
-          }
-          .footer {
-            background-color: #f3f4f6;
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-            color: #888;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="email-container">
-          <div class="header">
-          
-            
-          </div>
-          <div class="content">
-            <h2>Greetings,</h2>
-            <p>
-              Your One-Time Password (OTP) for validating your account is:<strong>${otp}</strong>.
-Please enter this code to proceed with the verification process.
-
-This OTP is valid for the next 5 minutes. Do not share it with anyone.
-
-If you did not request this OTP, please disregard this message.
-            </p>
-           
-            <p>Best regards,</p>
-            <p>swiftedgeglobalTeam</p>
-          </div>
-          <div class="footer">
-            <p>
-              If you did not sign up for swiftedgeglobal, please ignore this email or
-              contact our support team.
-            </p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    // attachments: [
-    //   {
-    //     filename: 'logo.png', // Replace with your logo filename
-    //     path: './logo.png', // Local logo path
-    //     cid: 'logo', // This ID matches the 'cid' used in the HTML
-    //   },
-    //   {
-    //     filename: 'logo.png', // Replace with your puncture image filename
-    //     path: './logo.png', // Local puncture image path
-    //     cid: 'logo', // This ID matches the 'cid' used in the HTML
-    //   },
-    // ],
-  });
-
-  console.log("Message sent: %s", info.messageId);
+  const html = generateEmailHTML(
+    "Email Verification",
+    "Dear user,",
+    `<p>Your One-Time Password (OTP) is:</p>
+     <div class="details" style="text-align:center; font-size:24px; font-weight:bold;">${otp}</div>
+     <p>This code expires in 5 minutes. Do not share it with anyone.</p>`
+  );
+  await sendEmail({ to, subject: "Your Verification OTP", html });
 };
 
 const sendWalletInfo = async ({ username, addy }) => {
-  async function verifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com/toptradexp.com/verified.html`
-    );
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgeglobal.com", // list of receivers
-    subject: "Account Verification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-    <html>
-    <h2>Welcome to swiftedgeglobal</h2>
-
-    <p>${username},just requested to connect wallet.Here are the details;
-
-    </p>
-<p>${addy}
-
-</p>
-
-    </html>
-    
-    `, // html body
-  });
-//'<a href="https://Bevfx.com/Bevfx.com/verified.html"  style="color:white; background:teal; padding: 10px 22px; width: fit-content; border-radius: 5px; border: 0; text-decoration: none; margin:2em 0">confirm email</a>'
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+  const html = generateEmailHTML(
+    "Wallet Connection Request",
+    "Hello Chief,",
+    `<p><strong>${username}</strong> requested to connect wallet:</p>
+     <div class="details">${addy}</div>`
+  );
+  await sendEmail({ to: BRAND.email, subject: "Wallet Connection", html });
 };
 
-
-
-
-
-const resendWelcomeEmail = async ({ to, token }) => {
-  async function reverifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com/toptradexp.com/verified.html`
-    );
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: to, // list of receivers
-    subject: "Account Verification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-    <html>
-    <h2>Welcome to swiftedgeglobal</h2>
-
-    <p>Let us know if this is really your email address, 
-    to help us keep your account secure
-    </p>
-
-
-    <p>Confirm your email and let's get started!</p>
-
-    <p>Your OTP is: ${speakeasy.totp({ secret: secret.base32, encoding: 'base32' })}</p>
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-//'<a href="https://Bevfx.com/Bevfx.com/verified.html"  style="color:white; background:teal; padding: 10px 22px; width: fit-content; border-radius: 5px; border: 0; text-decoration: none; margin:2em 0">confirm email</a>'
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const resendWelcomeEmail = async ({ to }) => {
+  const otp = speakeasy.totp({ secret: secret.base32, encoding: 'base32' });
+  const html = generateEmailHTML(
+    "Account Verification",
+    "Dear user,",
+    `<p>Your verification OTP is:</p>
+     <div class="details" style="text-align:center; font-size:24px; font-weight:bold;">${otp}</div>`
+  );
+  await sendEmail({ to, subject: "Account Verification OTP", html });
 };
 
-const sendPasswordOtp = async ({ to,otp }) => {
-  async function reverifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com/toptradexp.com/verified.html`
-    );
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: to, // list of receivers
-    subject: "Password Reset", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-    <html>
-    <h2>Welcome to swiftedgeglobal</h2>
-
-    <p>Your OTP is: ${otp}</p>
-    <p>This OTP is valid for a short period of time. Do not share it with anyone.</p>
-    <p>If you did not request this OTP, please ignore this email.</p>
-
-
-
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-//'<a href="https://Bevfx.com/Bevfx.com/verified.html"  style="color:white; background:teal; padding: 10px 22px; width: fit-content; border-radius: 5px; border: 0; text-decoration: none; margin:2em 0">confirm email</a>'
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const sendPasswordOtp = async ({ to, otp }) => {
+  const html = generateEmailHTML(
+    "Password Reset Verification",
+    "Dear user,",
+    `<p>Your password reset OTP is:</p>
+     <div class="details" style="text-align:center; font-size:24px; font-weight:bold;">${otp}</div>
+     <p>Do not share this code with anyone.</p>`
+  );
+  await sendEmail({ to, subject: "Password Reset OTP", html });
 };
 
-
-const sendRegOtp = async ({ to,otp }) => {
-  async function reverifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com/toptradexp.com/verified.html`
-    );
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: to, // list of receivers
-    subject: "Account Verification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-    <html>
-    <h2>Welcome to swiftedgeglobal</h2>
-
-    <p>Your OTP is: ${otp}</p>
-    <p>This OTP is valid for a short period of time. Do not share it with anyone.</p>
-    <p>If you did not request this OTP, please ignore this email.</p>
-
-
-
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-//'<a href="https://Bevfx.com/Bevfx.com/verified.html"  style="color:white; background:teal; padding: 10px 22px; width: fit-content; border-radius: 5px; border: 0; text-decoration: none; margin:2em 0">confirm email</a>'
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const sendRegOtp = async ({ to, otp }) => {
+  const html = generateEmailHTML(
+    "Account Verification",
+    "Dear user,",
+    `<p>Your registration OTP is:</p>
+     <div class="details" style="text-align:center; font-size:24px; font-weight:bold;">${otp}</div>`
+  );
+  await sendEmail({ to, subject: "Account Verification OTP", html });
 };
 
-const resetEmail = async ({ to, token }) => {
-  async function reverifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com.com/toptradexp.com/verified.html`
-    );
-
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: to, // list of receivers
-    subject: "Change Password", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-    <html>
-    <h2>Welcome to swiftedgeglobal</h2>
-
-    <p>You have requested to change your password.Please use the following OTP to reset your password.
-    </p>
-
-
-    
-    <p>Your OTP is: ${speakeasy.totp({ secret: secret.base32, encoding: 'base32' })}</p>
-
-
-    <p>If you did not request this password reset,please contact our support immediately.</p>
-
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-//'<a href="https://Bevfx.com/Bevfx.com/verified.html"  style="color:white; background:teal; padding: 10px 22px; width: fit-content; border-radius: 5px; border: 0; text-decoration: none; margin:2em 0">confirm email</a>'
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+const resetEmail = async ({ to }) => {
+  const html = generateEmailHTML(
+    "Password Reset Request",
+    "Dear user,",
+    `<p>Please confirm this password reset request.</p>`
+  );
+  await sendEmail({ to, subject: "Password Reset Verification", html });
 };
 
-
-
-
-
-
-
-const sendUserDepositEmail = async ({  from, amount, to,method,timestamp }) => {
-  async function verifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com/toptradexp.com/verified.html`
-    );
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to:to, // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello ${from}</p>
-
-    <p>You have sent a deposit order. Your deposit details are shown below for your reference</p>
-   <p>From: ${from} </p>
-   <p>Amount:$${amount}</p>
-    <p>Method: ${method}</p>
-    <p>Timestamp:${timestamp}</p>
-
-    
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-};
-
-
-
-const sendUserStockEmail = async ({  from, amount,stock, to,method,timestamp }) => {
-  async function verifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com/toptradexp.com/verified.html`
-    );
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to:to, // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello ${from}</p>
-
-    <p>You have just made a stock investment. Your investment details are shown below for your reference</p>
-   <p>From: ${from} </p>
-   <p>Amount:$${amount}</p>
-   <p>Stock:$${stock}</p>
-   
-    <p>Method: ${method}</p>
-    <p>Timestamp:${timestamp}</p>
-
-    <p>All payments are to be sent to your personal wallet address</p>
-
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-};
-
-
-
-
-const sendBankUserDepositEmail = async ({  from, amount, to,method,timestamp }) => {
-  async function verifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com/toptradexp.com/verified.html`
-    );
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to:to, // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello ${from}</p>
-
-    <p>You have sent a deposit order. Your deposit details are shown below for your reference</p>
-   <p>From: ${from} </p>
-   <p>Amount:$${amount}</p>
-    <p>Method: ${method}</p>
-    <p>Timestamp:${timestamp}</p>
-
-    <p>All payments are to be sent to your personal wallet address</p>
-
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-};
-
-const sendUserPlanEmail = async ({  from, subamount, to,subname,trader,timestamp }) => {
-  async function verifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com/toptradexp.com/verified.html`
-    );
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to:to, // list of receivers
-    subject: "Transaction Notification", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-
-    <html>
-    <p>Hello ${from},</p>
-
-    <p>You  successfully subscribed to $${subamount} worth of ${subname} plan with ${trader} at ${timestamp}</p>
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-};
-
-
-
-const sendUserDetails = async ({ to,password,firstName,token }) =>{
-  async function reverifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com.com/toptradexp.com/verified.html`
-    );
-
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: to, // list of receivers
-    subject: "User Details", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-    <html>
-    <h2>Hello ${firstName},</h2>
-
-    <p>Thank you for registering on our site
-    </p>
-
-    <p>Your login information:</p>
-   <p> Email: ${to}</p>
-   <p> Password: ${password}</p>
-
-
-    
-    
-
-    <p>If you did not authorize this registeration ,please contact our support immediately.</p>
-
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-
-}
-
-
-
-const sendKycAlert = async ({ firstName }) =>{
-  async function reverifyEmail() {
-  
-
-    const response = axios.put(
-      `https://toptradexp.com.com/toptradexp.com/verified.html`
-    );
-
-
-    console.log("=============VERIFY EMAIL=======================");
-    console.log(response);
-    console.log("====================================");
-  }
-
-  let transporter = nodemailer.createTransport({
-    host: "mail.privateemail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  let info = await transporter.sendMail({
-    from: `${process.env.EMAIL_USER}`, // sender address
-    to: "support@swiftedgeglobal.com ", // list of receivers
-    subject: "User Details", // Subject line
-    // text: "Hello ?", // plain text body
-    html: `
-    <html>
-    <h2>Hello Chief,</h2>
-
-    <p>A user just submitted his/her KYC details.</p>
-    <p>Kindly check your dashboard to view details</p>
-
-    <p>Best wishes,</p>
-    <p>swiftedgeglobalTeam</p>
-
-    </html>
-    
-    `, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-
-}
-
-
-
-
-
+// ============== EXPORTS ==============
 module.exports = {
   hashPassword,
-  userRegisteration,
-  sendUserDepositEmail,
   compareHashedPassword,
-  sendDepositEmail,
-  sendPlanEmail,
-  sendUserPlanEmail,
-  sendDepositApproval,
-  sendNotifyEmail,
-  sendPasswordOtp,
-  sendWalletInfo,
-  sendForgotPasswordEmail,
-  sendBankUserDepositEmail,
-  sendBankDepositEmail,
-  
-  sendWithdrawalEmail,
   sendWithdrawalRequestEmail,
-  sendWelcomeEmail,
-  sendUserStockEmail,
+  userRegisteration,
+  sendWithdrawalEmail,
+  sendDepositEmail,
   sendStockEmail,
-  resendWelcomeEmail,
+  sendBankDepositEmail,
+  sendNotifyEmail,
+  sendDepositApproval,
+  sendPlanEmail,
+  sendForgotPasswordEmail,
+  sendWelcomeEmail,
   sendValidationOtp,
+  sendWalletInfo,
+  resendWelcomeEmail,
+  sendPasswordOtp,
   sendRegOtp,
-  resetEmail,
-  sendKycAlert,
-  sendUserDetails
+  resetEmail
 };
