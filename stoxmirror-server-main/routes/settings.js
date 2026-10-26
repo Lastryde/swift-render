@@ -32,6 +32,11 @@ const NETWORKS = {
   evm: { name: "Ethereum / EVM (ERC-20, BEP-20, Polygon…)", re: /^0x[a-fA-F0-9]{40}$/ },
   tron: { name: "Tron (TRX / TRC-20)", re: new RegExp(`^T[${BASE58}]{33}$`) },
   solana: { name: "Solana (SOL / SPL)", re: new RegExp(`^[${BASE58}]{32,44}$`) },
+ xrp: {
+  name: "XRP Ledger (XRP)",
+  re: new RegExp(`^r[${BASE58}]{24,34}$`)
+},
+  
   litecoin: { name: "Litecoin (LTC)", re: new RegExp(`^(ltc1[${BECH32}]{25,87}|[LM3][${BASE58}]{26,33})$`) },
   dogecoin: { name: "Dogecoin (DOGE)", re: new RegExp(`^[DA9][${BASE58}]{25,34}$`) },
 };
